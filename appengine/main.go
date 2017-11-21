@@ -1,4 +1,4 @@
-package vstore_tester
+package appengine
 
 import (
 	"net/http"

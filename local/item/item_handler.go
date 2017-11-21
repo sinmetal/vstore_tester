@@ -1,18 +1,20 @@
-package vstore_tester
+package item
 
 import (
 	"context"
 	"time"
 
 	"go.mercari.io/datastore"
-	"go.mercari.io/datastore/aedatastore"
 	"go.mercari.io/datastore/boom"
+	"go.mercari.io/datastore/clouddatastore"
 
-	aestore "google.golang.org/appengine/datastore"
+	vt "github.com/sinmetal/vstore_tester"
+	"github.com/sinmetal/vstore_tester/local/config"
 )
 
-func FromContext(ctx context.Context) (datastore.Client, error) {
-	return aedatastore.FromContext(ctx)
+func FromContext(ctx context.Context, projectID string) (datastore.Client, error) {
+	o := datastore.WithProjectID(projectID)
+	return clouddatastore.FromContext(ctx, o)
 }
 
 type ItemAPI struct{}
@@ -22,16 +24,20 @@ type ItemAPIAllocatedIDResponse struct {
 }
 
 func (api *ItemAPI) AllocatedID(ctx context.Context) (*ItemAPIAllocatedIDResponse, error) {
-	store := ItemStore{}
+	store := vt.ItemStore{}
 
-	client, err := FromContext(ctx)
+	projectID, err := config.GetProjectID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	client, err := FromContext(ctx, projectID)
 	if err != nil {
 		return nil, err
 	}
 	defer client.Close()
 
 	bm := boom.FromClient(ctx, client)
-	item := &Item{
+	item := &vt.Item{
 		Kind:     "ItemV1",
 		Contents: []string{"From AllocatedID"},
 	}
@@ -50,23 +56,6 @@ func (api *ItemAPI) AllocatedID(ctx context.Context) (*ItemAPIAllocatedIDRespons
 	}, nil
 }
 
-type ItemAPIAllocatedIDOrgResponse struct {
-	Low  int64
-	High int64
-}
-
-func (api *ItemAPI) AllocatedIDOrg(ctx context.Context) (*ItemAPIAllocatedIDOrgResponse, error) {
-	low, high, err := aestore.AllocateIDs(ctx, "ItemV1", nil, 1)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ItemAPIAllocatedIDOrgResponse{
-		Low:  low,
-		High: high,
-	}, nil
-}
-
 type ItemAPIPostRequest struct {
 	Contents []string
 }
@@ -79,16 +68,20 @@ type ItemAPIPostResponse struct {
 }
 
 func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAPIPostResponse, error) {
-	store := ItemStore{}
+	store := vt.ItemStore{}
 
-	client, err := FromContext(ctx)
+	projectID, err := config.GetProjectID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	client, err := FromContext(ctx, projectID)
 	if err != nil {
 		return nil, err
 	}
 	defer client.Close()
 
 	bm := boom.FromClient(ctx, client)
-	item := &Item{
+	item := &vt.Item{
 		Kind:     "ItemV1",
 		Contents: form.Contents,
 	}
