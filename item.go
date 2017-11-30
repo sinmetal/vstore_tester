@@ -10,11 +10,13 @@ import (
 	"go.mercari.io/datastore/boom"
 )
 
+type Contents []string
+
 type Item struct {
 	// FIXME panic !!! Parent datastore.Key `boom:"parent"`
 	ID            int64     `boom:"id",datastore:"-"`
 	Kind          string    `boom:"kind"`
-	Contents      []string  `json:"contents"`
+	Contents      Contents  `json:"contents"`
 	CreatedAt     time.Time `json:"createdAt"`
 	UpdatedAt     time.Time `json:"updatedAt"`
 	SchemaVersion int       `json:"-"`
