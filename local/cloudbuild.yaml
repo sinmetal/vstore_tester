@@ -1,6 +1,9 @@
 steps:
 - name: 'gcr.io/cloud-builders/go'
-  args: ['get', './...']
+  args: ['get', 'github.com/golang/dep/cmd/dep']
+  env: ['PROJECT_ROOT=github.com/sinmetal/vstore_tester/local']
+- name: 'ubuntu'
+  args: ['bash', 'dep ensure']
   env: ['PROJECT_ROOT=github.com/sinmetal/vstore_tester/local']
 - name: 'gcr.io/cloud-builders/go'
   args: ['generate']
