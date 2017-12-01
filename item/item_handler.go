@@ -2,14 +2,15 @@ package item
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"go.mercari.io/datastore"
 	"go.mercari.io/datastore/boom"
 	"go.mercari.io/datastore/clouddatastore"
 
-	vtm "github.com/sinmetal/vstore_tester_model"
 	"github.com/sinmetal/vstore_tester/config"
+	vtm "github.com/sinmetal/vstore_tester_model"
 )
 
 func FromContext(ctx context.Context, projectID string) (datastore.Client, error) {
@@ -68,6 +69,8 @@ type ItemAPIPostResponse struct {
 }
 
 func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAPIPostResponse, error) {
+	fmt.Println("Item Post !!!")
+
 	store := vtm.ItemStore{}
 
 	projectID, err := config.GetProjectID(ctx)
