@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: vt-server-service
+  name: vt-server-service
+spec:
+  ports:
+  - port: 8080
+  selector:
+    name: vt-server-node
