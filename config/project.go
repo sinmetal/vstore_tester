@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-const ProjectID = "vstore-tester"
+const ProjectID = "souzoh-demo-gcp-001"
 
 type contextKey string
 
