@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    name: vt-client-node
+  name: vt-client-node
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: vt-client-node
+    spec:
+      containers:
+      - image: gcr.io/souzoh-demo-gcp-001/sinmetal/vstore_tester_client:latest
+        name: vt-client-node
