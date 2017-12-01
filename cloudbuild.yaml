@@ -1,0 +1,15 @@
+steps:
+- name: 'gcr.io/cloud-builders/go'
+  args: ['generate']
+  env: ['PROJECT_ROOT=github.com/sinmetal/vstore_tester']
+- name: 'gcr.io/cloud-builders/go'
+  args: ['install', '-a', '-ldflags', "'-s'", '-installsuffix', 'cgo', 'github.com/sinmetal/vstore_tester']
+  env: [
+    'PROJECT_ROOT=github.com/sinmetal/vstore_tester',
+    'CGO_ENABLED=0',
+    'GOOS=linux'
+  ]
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '--tag=gcr.io/$PROJECT_ID/sinmetal/vstore_tester', '.']
+
+images: ['gcr.io/$PROJECT_ID/sinmetal/vstore_tester']
