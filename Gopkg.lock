@@ -41,7 +41,7 @@
   branch = "master"
   name = "github.com/sinmetal/vstore_tester_model"
   packages = ["."]
-  revision = "ef1a595efba3bb5e799d094730845a6089a589b8"
+  revision = "6d1b6a7dc5dbb553e0930b4440af719f5fa03a27"
 
 [[projects]]
   name = "go.mercari.io/datastore"

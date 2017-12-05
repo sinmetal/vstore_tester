@@ -14,8 +14,8 @@ type Contents []string
 
 type Item struct {
 	// FIXME panic !!! Parent datastore.Key `boom:"parent"`
-	ID            int64     `boom:"id",datastore:"-"`
-	Kind          string    `boom:"kind"`
+	ID            int64     `boom:"id" datastore:"-"`
+	Kind          string    `boom:"kind" datastore:"-"`
 	Contents      Contents  `json:"contents"`
 	CreatedAt     time.Time `json:"createdAt"`
 	UpdatedAt     time.Time `json:"updatedAt"`
@@ -34,6 +34,7 @@ func (item *Item) Load(ctx context.Context, ps []datastore.Property) error {
 }
 
 func (item *Item) Save(ctx context.Context) ([]datastore.Property, error) {
+	item.SchemaVersion = 2
 	if item.CreatedAt.IsZero() {
 		item.CreatedAt = time.Now()
 	}
