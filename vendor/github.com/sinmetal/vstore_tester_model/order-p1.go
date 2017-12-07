@@ -75,7 +75,7 @@ func (model *OrderP1Detail) Save(ctx context.Context) ([]datastore.Property, err
 }
 
 func (store *OrderP1Store) Put(bm *boom.Boom, order *OrderP1, details []*OrderP1Detail) error {
-	if len(details) < 20 {
+	if len(details) > 20 {
 		return fmt.Errorf("detail must be 20 pieces or less. details.len = %d", len(details))
 	}
 

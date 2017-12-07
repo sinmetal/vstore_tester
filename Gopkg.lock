@@ -26,6 +26,12 @@
   revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
 
 [[projects]]
+  name = "github.com/google/uuid"
+  packages = ["."]
+  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
+  version = "0.2"
+
+[[projects]]
   name = "github.com/googleapis/gax-go"
   packages = ["."]
   revision = "317e0006254c44a0ac427cc52a0e083ff0b9622f"
@@ -41,7 +47,7 @@
   branch = "master"
   name = "github.com/sinmetal/vstore_tester_model"
   packages = ["."]
-  revision = "6d1b6a7dc5dbb553e0930b4440af719f5fa03a27"
+  revision = "5ec04511466ec25eeeec5211573de14c2663e465"
 
 [[projects]]
   name = "go.mercari.io/datastore"
@@ -94,6 +100,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4cf25ce4969767b4547f1d3a788bc0a93d8d59e0d5d85459f3a08f133ed509df"
+  inputs-digest = "2d57cbfd31a8bc605d378eb9f1753121bcabe265b9928bb5fadeb16cc5ef954c"
   solver-name = "gps-cdcl"
   solver-version = 1
