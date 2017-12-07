@@ -6,6 +6,7 @@ import (
 
 	"github.com/sinmetal/vstore_tester/config"
 	"github.com/sinmetal/vstore_tester/item"
+	"github.com/sinmetal/vstore_tester/order"
 
 	"github.com/favclip/ucon"
 )
@@ -18,12 +19,16 @@ func main() {
 	ucon.HandleFunc(http.MethodPost, "/item", itemAPI.Post)
 	ucon.HandleFunc(http.MethodPost, "/item/allocatedid", itemAPI.AllocatedID)
 
+	orderP1API := order.OrderP1API{}
+	ucon.HandleFunc(http.MethodPost, "/orderP1", orderP1API.Post)
+
 	ucon.DefaultMux.Prepare()
 	http.Handle("/", ucon.DefaultMux)
 
 	ucon.ListenAndServe(":8080")
 }
 
+// UseContext is Set Context
 func UseContext(b *ucon.Bubble) error {
 	if b.Context == nil {
 		ctx := context.Background()
