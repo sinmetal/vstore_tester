@@ -597,7 +597,7 @@ func TestCloudDatastore_ObjectHasObjectSliceFlatten(t *testing.T) {
 
 func TestCloudDatastore_NestedEntityWithKey(t *testing.T) {
 	ctx := context.Background()
-	client, err := datastore.NewClient(ctx, "souzoh-p-vvakame")
+	client, err := datastore.NewClient(ctx, internal.GetProjectID())
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -628,7 +628,7 @@ func TestCloudDatastore_NestedEntityWithKey(t *testing.T) {
 
 func TestCloudDatastore_GeoPoint(t *testing.T) {
 	ctx := context.Background()
-	client, err := datastore.NewClient(ctx, "souzoh-p-vvakame")
+	client, err := datastore.NewClient(ctx, internal.GetProjectID())
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -718,7 +718,7 @@ func TestCloudDatastore_GeoPoint(t *testing.T) {
 
 func TestCloudDatastore_PutInterface(t *testing.T) {
 	ctx := context.Background()
-	client, err := datastore.NewClient(ctx, "souzoh-p-vvakame")
+	client, err := datastore.NewClient(ctx, internal.GetProjectID())
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -737,7 +737,7 @@ func TestCloudDatastore_PutInterface(t *testing.T) {
 
 func TestCloudDatastore_PutAndGetPropertyList(t *testing.T) {
 	ctx := context.Background()
-	client, err := datastore.NewClient(ctx, "souzoh-p-vvakame")
+	client, err := datastore.NewClient(ctx, internal.GetProjectID())
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -788,7 +788,7 @@ func TestCloudDatastore_PutAndGetPropertyList(t *testing.T) {
 
 func TestCloudDatastore_PutAndGetMultiPropertyListSlice(t *testing.T) {
 	ctx := context.Background()
-	client, err := datastore.NewClient(ctx, "souzoh-p-vvakame")
+	client, err := datastore.NewClient(ctx, internal.GetProjectID())
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -854,7 +854,7 @@ func TestCloudDatastore_PutAndGetMultiPropertyListSlice(t *testing.T) {
 
 func TestCloudDatastore_PutAndGetBareStruct(t *testing.T) {
 	ctx := context.Background()
-	client, err := datastore.NewClient(ctx, "souzoh-p-vvakame")
+	client, err := datastore.NewClient(ctx, internal.GetProjectID())
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -892,7 +892,7 @@ func TestCloudDatastore_PutAndGetBareStruct(t *testing.T) {
 
 func TestCloudDatastore_PutAndGetMultiBareStruct(t *testing.T) {
 	ctx := context.Background()
-	client, err := datastore.NewClient(ctx, "souzoh-p-vvakame")
+	client, err := datastore.NewClient(ctx, internal.GetProjectID())
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -943,7 +943,7 @@ func TestCloudDatastore_PutAndGetMultiBareStruct(t *testing.T) {
 
 func TestCloudDatastore_PutAndGetStringSynonym(t *testing.T) {
 	ctx := context.Background()
-	client, err := datastore.NewClient(ctx, "souzoh-p-vvakame")
+	client, err := datastore.NewClient(ctx, internal.GetProjectID())
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -974,7 +974,7 @@ func TestCloudDatastore_PutAndGetStringSynonym(t *testing.T) {
 
 func TestCloudDatastore_QueryNextByPropertyList(t *testing.T) {
 	ctx := context.Background()
-	client, err := datastore.NewClient(ctx, "souzoh-p-vvakame")
+	client, err := datastore.NewClient(ctx, internal.GetProjectID())
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -1014,7 +1014,7 @@ func TestCloudDatastore_QueryNextByPropertyList(t *testing.T) {
 
 func TestCloudDatastore_GetAllByPropertyListSlice(t *testing.T) {
 	ctx := context.Background()
-	client, err := datastore.NewClient(ctx, "souzoh-p-vvakame")
+	client, err := datastore.NewClient(ctx, internal.GetProjectID())
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -1046,4 +1046,41 @@ func TestCloudDatastore_GetAllByPropertyListSlice(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestCloudDatastore_PendingKeyWithCompleteKey(t *testing.T) {
+	ctx := context.Background()
+	client, err := datastore.NewClient(ctx, internal.GetProjectID())
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	defer client.Close()
+	defer cleanUp()
+
+	type Data struct {
+		Name string
+	}
+
+	tx, err := client.NewTransaction(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pKey, err := tx.Put(datastore.NameKey("Data", "a", nil), &Data{Name: "Test"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	commit, err := tx.Commit()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer func() {
+		if err := recover(); err == nil || err.(string) != "PendingKey was not created by corresponding transaction" {
+			t.Errorf("unexpected: '%v'", err)
+		}
+	}()
+	// panic occurred in this case.
+	commit.Key(pKey)
 }

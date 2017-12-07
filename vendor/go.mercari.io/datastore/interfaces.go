@@ -31,9 +31,12 @@ type Client interface {
 
 	Close() error
 
+	DecodeKey(encoded string) (Key, error)
 	DecodeCursor(s string) (Cursor, error)
 
 	Batch() *Batch
+	AppendCacheStrategy(strategy CacheStrategy) // NOTE First-In Last-Apply
+	RemoveCacheStrategy(strategy CacheStrategy) bool
 	SwapContext(ctx context.Context) context.Context
 }
 
@@ -95,6 +98,8 @@ type Query interface {
 	Offset(offset int) Query
 	Start(c Cursor) Query
 	End(c Cursor) Query
+
+	Dump() *QueryDump
 }
 
 type Iterator interface {

@@ -30,8 +30,8 @@
   name = "github.com/sinmetal/vstore_tester_model"
 
 [[constraint]]
+  branch = "master"
   name = "go.mercari.io/datastore"
-  version = "0.6.0"
 
 [[constraint]]
   name = "github.com/google/uuid"

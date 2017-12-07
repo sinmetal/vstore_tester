@@ -5,7 +5,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/favclip/testerator"
 	"go.mercari.io/datastore"
+	"go.mercari.io/datastore/aedatastore"
 	"go.mercari.io/datastore/clouddatastore"
 )
 
@@ -64,4 +66,18 @@ func SetupCloudDatastore(t *testing.T) (context.Context, datastore.Client, func(
 			}
 		}
 	}
+}
+
+func SetupAEDatastore(t *testing.T) (context.Context, datastore.Client, func()) {
+	_, ctx, err := testerator.SpinUp()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	client, err := aedatastore.FromContext(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return ctx, client, func() { testerator.SpinDown() }
 }

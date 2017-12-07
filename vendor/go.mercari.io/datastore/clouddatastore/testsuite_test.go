@@ -4,7 +4,11 @@ import (
 	"context"
 	"testing"
 
+	"go.mercari.io/datastore/cache/localcache"
 	"go.mercari.io/datastore/testsuite"
+	_ "go.mercari.io/datastore/testsuite/cache/dslog"
+	_ "go.mercari.io/datastore/testsuite/cache/fishbone"
+	_ "go.mercari.io/datastore/testsuite/cache/localcache"
 	_ "go.mercari.io/datastore/testsuite/favcliptools"
 	_ "go.mercari.io/datastore/testsuite/realworld/tbf"
 	"google.golang.org/api/iterator"
@@ -57,6 +61,26 @@ func TestCloudDatastoreTestSuite(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			ctx = testsuite.WrapCloudFlag(ctx)
+			test(t, ctx, datastore)
+		})
+	}
+}
+
+func TestCloudDatastoreWithLocalCacheTestSuite(t *testing.T) {
+	ctx := context.Background()
+	for name, test := range testsuite.TestSuite {
+		t.Run(name, func(t *testing.T) {
+			defer cleanUp()
+
+			datastore, err := FromContext(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			ch := localcache.New()
+			datastore.AppendCacheStrategy(ch)
+
 			ctx = testsuite.WrapCloudFlag(ctx)
 			test(t, ctx, datastore)
 		})

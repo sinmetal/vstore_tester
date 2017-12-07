@@ -50,10 +50,10 @@
   revision = "5ec04511466ec25eeeec5211573de14c2663e465"
 
 [[projects]]
+  branch = "master"
   name = "go.mercari.io/datastore"
-  packages = [".","boom","clouddatastore","internal","internal/c/atomiccache","internal/c/fields"]
-  revision = "dccd0651ac79b4f16d481c7fcabf173dbd6998d2"
-  version = "v0.6.0"
+  packages = [".","boom","clouddatastore","internal","internal/c/atomiccache","internal/c/fields","internal/shared"]
+  revision = "2c3f8dafae023d3e3a1fad8f92d31870e86fc432"
 
 [[projects]]
   branch = "master"
@@ -65,19 +65,19 @@
   branch = "master"
   name = "golang.org/x/oauth2"
   packages = [".","google","internal","jws","jwt"]
-  revision = "f95fa95eaa936d9d87489b15d1d18b97c1ba9c28"
+  revision = "6a2004c8907a86949d71c664c81574897a4e55a6"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
   packages = ["collate","collate/build","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
-  revision = "678c1cbf9306adcffe1fd32e7a1995d23a9ffcd6"
+  revision = "f9878be4819f7f135610e129dc370d21841b06e7"
 
 [[projects]]
   branch = "master"
   name = "google.golang.org/api"
   packages = ["internal","iterator","option","transport/grpc"]
-  revision = "88d8826ad7655f8bdc7328b1ec3774f3851c3a44"
+  revision = "24ed4b228b8f31d2ce20b561c08acb5b37413695"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -93,13 +93,13 @@
 
 [[projects]]
   name = "google.golang.org/grpc"
-  packages = [".","balancer","balancer/roundrobin","codes","connectivity","credentials","credentials/oauth","encoding","grpclb/grpc_lb_v1/messages","grpclog","internal","keepalive","metadata","naming","peer","resolver","resolver/dns","resolver/passthrough","stats","status","tap","transport"]
-  revision = "5a9f7b402fe85096d2e1d0383435ee1876e863d0"
-  version = "v1.8.0"
+  packages = [".","balancer","balancer/roundrobin","codes","connectivity","credentials","credentials/oauth","encoding","grpclb/grpc_lb_v1/messages","grpclog","internal","keepalive","metadata","naming","peer","resolver","resolver/dns","resolver/manual","resolver/passthrough","stats","status","tap","transport"]
+  revision = "be077907e29fdb945d351e4284eb5361e7f8924e"
+  version = "v1.8.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2d57cbfd31a8bc605d378eb9f1753121bcabe265b9928bb5fadeb16cc5ef954c"
+  inputs-digest = "3d53b906b435802277e6583a23edd7445a1d98c82a733b07e1365d7a00193fc4"
   solver-name = "gps-cdcl"
   solver-version = 1
