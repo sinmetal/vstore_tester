@@ -64,7 +64,7 @@ type ItemAPIPostRequest struct {
 }
 
 type ItemAPIPostResponse struct {
-	ID        int64
+	Key       string
 	Contents  []string
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -78,34 +78,15 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 		Contents: form.Contents,
 	}
 
-	if err := api.insertItem(ctx, item); err != nil {
-		fmt.Println(err.Error())
-	}
-	if err := api.insertItemOnlyOneClient(ctx, &vtm.Item{
-		Kind:     "ItemV1OnlyOneClient",
-		Contents: form.Contents,
-	}); err != nil {
-		fmt.Println(err.Error())
-	}
-
-	return &ItemAPIPostResponse{
-		ID:        item.ID,
-		Contents:  item.Contents,
-		CreatedAt: item.CreatedAt,
-		UpdatedAt: item.UpdatedAt,
-	}, nil
-}
-
-func (api *ItemAPI) insertItem(ctx context.Context, item *vtm.Item) error {
 	store := vtm.ItemStore{}
 
 	projectID, err := config.GetProjectID(ctx)
 	if err != nil {
-		return errors.Wrap(err, "config.GetProjectID")
+		return nil, errors.Wrap(err, "config.GetProjectID")
 	}
 	client, err := FromContext(ctx, projectID)
 	if err != nil {
-		return errors.Wrap(err, "FromContext")
+		return nil, errors.Wrap(err, "FromContext")
 	}
 	defer client.Close()
 
@@ -114,19 +95,32 @@ func (api *ItemAPI) insertItem(ctx context.Context, item *vtm.Item) error {
 	if err != nil {
 		errors.Wrap(err, "store.Put")
 	}
-	return nil
+
+	return &ItemAPIPostResponse{
+		Key:       bm.Key(item).Encode(),
+		Contents:  item.Contents,
+		CreatedAt: item.CreatedAt,
+		UpdatedAt: item.UpdatedAt,
+	}, nil
 }
 
-func (api *ItemAPI) insertItemOnlyOneClient(ctx context.Context, item *vtm.Item) error {
+func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostRequest) (*ItemAPIPostResponse, error) {
+	fmt.Println("Item PostForOnlyOneClient !!!")
+
+	item := &vtm.Item{
+		Kind:     "ItemV1OnlyOneClient",
+		Contents: form.Contents,
+	}
+
 	store := vtm.ItemStore{}
 
 	projectID, err := config.GetProjectID(ctx)
 	if err != nil {
-		return errors.Wrap(err, "config.GetProjectID")
+		return nil, errors.Wrap(err, "config.GetProjectID")
 	}
 	client, err := client.GetDatastoreClient(ctx, projectID)
 	if err != nil {
-		return errors.Wrap(err, "client.GetDatastoreClient")
+		return nil, errors.Wrap(err, "client.GetDatastoreClient")
 	}
 
 	bm := boom.FromClient(ctx, client)
@@ -134,5 +128,11 @@ func (api *ItemAPI) insertItemOnlyOneClient(ctx context.Context, item *vtm.Item)
 	if err != nil {
 		errors.Wrap(err, "store.Put")
 	}
-	return nil
+
+	return &ItemAPIPostResponse{
+		Key:       bm.Key(item).Encode(),
+		Contents:  item.Contents,
+		CreatedAt: item.CreatedAt,
+		UpdatedAt: item.UpdatedAt,
+	}, nil
 }

@@ -21,6 +21,7 @@ func main() {
 
 	itemAPI := item.ItemAPI{}
 	ucon.HandleFunc(http.MethodPost, "/item", itemAPI.Post)
+	ucon.HandleFunc(http.MethodPost, "/item/onlyoneclient", itemAPI.PostForOnlyOneClient)
 	ucon.HandleFunc(http.MethodPost, "/item/allocatedid", itemAPI.AllocatedID)
 
 	orderP1API := order.OrderP1API{}
