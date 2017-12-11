@@ -74,8 +74,9 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 	fmt.Println("Item Post !!!")
 
 	item := &vtm.Item{
-		Kind:     "ItemV1",
-		Contents: form.Contents,
+		Kind:        "ItemV1",
+		Contents:    form.Contents,
+		ContentsOrg: form.Contents,
 	}
 
 	store := vtm.ItemStore{}
@@ -108,8 +109,9 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 	fmt.Println("Item PostForOnlyOneClient !!!")
 
 	item := &vtm.Item{
-		Kind:     "ItemV1OnlyOneClient",
-		Contents: form.Contents,
+		Kind:        "ItemV1OnlyOneClient",
+		Contents:    form.Contents,
+		ContentsOrg: form.Contents,
 	}
 
 	store := vtm.ItemStore{}
