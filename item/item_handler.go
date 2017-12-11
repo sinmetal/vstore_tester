@@ -119,7 +119,7 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 			return true, errors.Wrap(err, "store.Put")
 		}
 		return false, nil
-	}, 5)
+	}, 8)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +175,7 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 			return true, errors.Wrap(err, "store.Put")
 		}
 		return false, nil
-	}, 5)
+	}, 8)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func Retry(fn Func, maxRetries int) error {
 		if attempt > maxRetries {
 			return err
 		}
-		time.Sleep(time.Second*time.Duration(attempt) + time.Millisecond*time.Duration(rand.Intn(100*attempt)))
+		time.Sleep(time.Second*time.Duration(attempt*attempt) + time.Millisecond*time.Duration(rand.Intn(100*attempt)))
 	}
 
 	return err
