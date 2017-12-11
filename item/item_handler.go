@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"time"
+	"encoding/json"
 
 	"go.mercari.io/datastore"
 	"go.mercari.io/datastore/boom"
@@ -72,6 +73,13 @@ type ItemAPIPostResponse struct {
 
 func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAPIPostResponse, error) {
 	fmt.Println("Item Post !!!")
+	{
+		body, err := json.Marshal(form)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		fmt.Println(string(body))
+	}
 
 	item := &vtm.Item{
 		Kind:        "ItemV1",
@@ -94,7 +102,7 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 	bm := boom.FromClient(ctx, client)
 	err = store.Put(bm, item)
 	if err != nil {
-		errors.Wrap(err, "store.Put")
+		return nil, errors.Wrap(err, "store.Put")
 	}
 
 	return &ItemAPIPostResponse{
@@ -107,6 +115,13 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 
 func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostRequest) (*ItemAPIPostResponse, error) {
 	fmt.Println("Item PostForOnlyOneClient !!!")
+	{
+		body, err := json.Marshal(form)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		fmt.Println(string(body))
+	}
 
 	item := &vtm.Item{
 		Kind:        "ItemV1OnlyOneClient",
@@ -128,7 +143,7 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 	bm := boom.FromClient(ctx, client)
 	err = store.Put(bm, item)
 	if err != nil {
-		errors.Wrap(err, "store.Put")
+		return nil, errors.Wrap(err, "store.Put")
 	}
 
 	return &ItemAPIPostResponse{
