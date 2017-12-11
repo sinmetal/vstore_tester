@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
+	"github.com/sinmetal/vstore_tester/client"
 	"github.com/sinmetal/vstore_tester/config"
 	"github.com/sinmetal/vstore_tester/item"
 	"github.com/sinmetal/vstore_tester/order"
@@ -12,6 +14,8 @@ import (
 )
 
 func main() {
+	defer client.CloseDatastoreClient()
+
 	ucon.Middleware(UseContext)
 	ucon.Orthodox()
 
@@ -25,7 +29,10 @@ func main() {
 	ucon.DefaultMux.Prepare()
 	http.Handle("/", ucon.DefaultMux)
 
+	fmt.Println("Start Listen port 8080")
 	ucon.ListenAndServe(":8080")
+
+	fmt.Println("Exit")
 }
 
 // UseContext is Set Context
