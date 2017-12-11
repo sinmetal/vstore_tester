@@ -60,14 +60,14 @@ func (api *ItemAPI) AllocatedID(ctx context.Context) (*ItemAPIAllocatedIDRespons
 }
 
 type ItemAPIPostRequest struct {
-	Contents []string
+	Contents []string `json:"contents"`
 }
 
 type ItemAPIPostResponse struct {
-	Key       string
-	Contents  []string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Key       string    `json:"key"`
+	Contents  []string  `json:"contents"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAPIPostResponse, error) {
