@@ -45,6 +45,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/sinmetal/slog"
+  packages = ["."]
+  revision = "aeab4f7aac51d03283d936409e98334b31930858"
+
+[[projects]]
+  branch = "master"
   name = "github.com/sinmetal/vstore_tester_model"
   packages = ["."]
   revision = "b1745b5097fbc677b32fe8d4c0ce2316a059e834"
@@ -100,6 +106,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b7dacf0a1f5cb9db6ea0a15312f1a70acc517cd8157e74eb87f7bc956538ea0b"
+  inputs-digest = "c9a3798f5598832510461cd4c6abb62b5f3abdcd84bac6d58923c58580adc2f8"
   solver-name = "gps-cdcl"
   solver-version = 1
