@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"time"
 
 	"go.mercari.io/datastore"
@@ -11,6 +12,7 @@ import (
 	"go.mercari.io/datastore/clouddatastore"
 
 	"github.com/pkg/errors"
+	"github.com/sinmetal/slog"
 	"github.com/sinmetal/vstore_tester/client"
 	"github.com/sinmetal/vstore_tester/config"
 	vtm "github.com/sinmetal/vstore_tester_model"
@@ -76,13 +78,16 @@ type ItemAPIPostResponse struct {
 }
 
 func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAPIPostResponse, error) {
-	fmt.Println("Item Post !!!")
+	log := slog.Start(time.Now())
+	defer log.Flush()
+
+	log.Info("Item Post !!!")
 	{
 		body, err := json.Marshal(form)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		fmt.Println(string(body))
+		log.Info(string(body))
 	}
 
 	item := &vtm.Item{
@@ -106,9 +111,17 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 	defer client.Close()
 
 	bm := boom.FromClient(ctx, client)
-	err = store.Put(bm, item)
+	err = Retry(func(attempt int) (retry bool, err error) {
+		log.Infof("Retry Count = %d", attempt)
+		err = store.Put(bm, item)
+		if err != nil {
+			log.Errorf("store.Put", err.Error())
+			return true, errors.Wrap(err, "store.Put")
+		}
+		return false, nil
+	}, 5)
 	if err != nil {
-		return nil, errors.Wrap(err, "store.Put")
+		return nil, err
 	}
 
 	return &ItemAPIPostResponse{
@@ -122,13 +135,16 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 }
 
 func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostRequest) (*ItemAPIPostResponse, error) {
-	fmt.Println("Item PostForOnlyOneClient !!!")
+	log := slog.Start(time.Now())
+	defer log.Flush()
+
+	log.Info("Item PostForOnlyOneClient !!!")
 	{
 		body, err := json.Marshal(form)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		fmt.Println(string(body))
+		log.Info(string(body))
 	}
 
 	item := &vtm.Item{
@@ -151,9 +167,17 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 	}
 
 	bm := boom.FromClient(ctx, client)
-	err = store.Put(bm, item)
+	err = Retry(func(attempt int) (retry bool, err error) {
+		log.Infof("Retry Count = %d", attempt)
+		err = store.Put(bm, item)
+		if err != nil {
+			log.Errorf("store.Put", err.Error())
+			return true, errors.Wrap(err, "store.Put")
+		}
+		return false, nil
+	}, 5)
 	if err != nil {
-		return nil, errors.Wrap(err, "store.Put")
+		return nil, err
 	}
 
 	return &ItemAPIPostResponse{
@@ -164,4 +188,25 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 		CreatedAt: item.CreatedAt,
 		UpdatedAt: item.UpdatedAt,
 	}, nil
+}
+
+type Func func(attempt int) (retry bool, err error)
+
+func Retry(fn Func, maxRetries int) error {
+	var err error
+
+	attempt := 1
+	for {
+		b, err := fn(attempt)
+		if b == false || err == nil {
+			break
+		}
+		attempt++
+		if attempt > maxRetries {
+			return err
+		}
+		time.Sleep(time.Second*time.Duration(attempt) + time.Millisecond*time.Duration(rand.Intn(100*attempt)))
+	}
+
+	return err
 }
