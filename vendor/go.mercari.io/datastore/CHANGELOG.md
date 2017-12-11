@@ -1,3 +1,57 @@
+<a name="0.9.0"></a>
+# [0.9.0](https://github.com/mercari/datastore/compare/v0.8.2...v0.9.0) (2017-12-06)
+
+### Features
+
+* **core,boom:** change batch operation signatures ([51da3ba](https://github.com/mercari/datastore/commit/51da3ba))
+
+### BREAKING CHANGES
+
+For batch processing, we stopped asynchronous processing using chan and switched to synchronous processing using callback function.
+
+
+<a name="0.8.2"></a>
+## [0.8.2](https://github.com/mercari/datastore/compare/v0.8.1...v0.8.2) (2017-12-06)
+
+
+### Bug Fixes
+
+* **boom:** fix PendingKey handling fixes [#30](https://github.com/mercari/datastore/issues/30) thanks [@sinmetal](https://github.com/sinmetal) ([eaa5729](https://github.com/mercari/datastore/commit/eaa5729))
+* **cache/storagecache:** fix MultiError handling that ErrNoSuchEntity contaminated ([d42850b](https://github.com/mercari/datastore/commit/d42850b))
+
+
+
+<a name="0.8.1"></a>
+## [0.8.1](https://github.com/mercari/datastore/compare/v0.8.0...v0.8.1) (2017-12-05)
+
+
+### Bug Fixes
+
+* **core:** fix time.Time's default location. fit to Cloud Datastore behaviour ([4226d8f](https://github.com/mercari/datastore/commit/4226d8f))
+
+
+
+<a name="0.8.0"></a>
+# [0.8.0](https://github.com/mercari/datastore/compare/v0.7.0...v0.8.0) (2017-12-04)
+
+
+### Features
+
+* **cache/storagecache:** implement WithIncludeKinds, WithExcludeKinds, WithKeyFilter options ([a8b5857](https://github.com/mercari/datastore/commit/a8b5857))
+
+
+
+<a name="0.7.0"></a>
+# [0.7.0](https://github.com/mercari/datastore/compare/v0.6.0...v0.7.0) (2017-12-04)
+
+
+### Features
+
+* **cache** implement cache layer & cache strategies ([203ab21](https://github.com/mercari/datastore/commit/203ab21))
+* **core,ae,cloud:** add datastore#Client.DecodeKey method ([42fa040](https://github.com/mercari/datastore/commit/42fa040))
+
+
+
 <a name="0.6.0"></a>
 # [0.6.0](https://github.com/mercari/datastore/compare/v0.5.3...v0.6.0) (2017-11-24)
 
