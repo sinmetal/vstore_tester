@@ -47,7 +47,7 @@
   branch = "master"
   name = "github.com/sinmetal/vstore_tester_model"
   packages = ["."]
-  revision = "5ec04511466ec25eeeec5211573de14c2663e465"
+  revision = "e88b76735089990331c8e0c939a5391fbb3ce4d1"
 
 [[projects]]
   branch = "master"
@@ -100,6 +100,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3d53b906b435802277e6583a23edd7445a1d98c82a733b07e1365d7a00193fc4"
+  inputs-digest = "b7dacf0a1f5cb9db6ea0a15312f1a70acc517cd8157e74eb87f7bc956538ea0b"
   solver-name = "gps-cdcl"
   solver-version = 1

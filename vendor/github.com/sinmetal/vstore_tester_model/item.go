@@ -17,6 +17,7 @@ type Item struct {
 	ID            int64     `boom:"id" datastore:"-"`
 	Kind          string    `boom:"kind" datastore:"-"`
 	Contents      Contents  `json:"contents"`
+	ContentsOrg   []string  `json:"contentsOrg"`
 	CreatedAt     time.Time `json:"createdAt"`
 	UpdatedAt     time.Time `json:"updatedAt"`
 	SchemaVersion int       `json:"-"`
