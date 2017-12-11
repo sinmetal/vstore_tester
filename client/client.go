@@ -13,9 +13,11 @@ var ds datastore.Client
 
 func GetDatastoreClient(ctx context.Context, projectID string) (datastore.Client, error) {
 	mu.RLock()
-	defer mu.RUnlock()
 	if ds == nil {
+		mu.RUnlock()
 		createWithSetDatastoreClient(ctx, projectID)
+	} else {
+		mu.RUnlock()
 	}
 	return ds, nil
 }
