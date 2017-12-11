@@ -2,9 +2,9 @@ package item
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
-	"encoding/json"
 
 	"go.mercari.io/datastore"
 	"go.mercari.io/datastore/boom"
@@ -61,11 +61,15 @@ func (api *ItemAPI) AllocatedID(ctx context.Context) (*ItemAPIAllocatedIDRespons
 }
 
 type ItemAPIPostRequest struct {
+	Lot      string   `json:"lot"`
+	Index    int      `json:"index"`
 	Contents []string `json:"contents"`
 }
 
 type ItemAPIPostResponse struct {
 	Key       string    `json:"key"`
+	Lot       string    `json:"lot"`
+	Index     int       `json:"index"`
 	Contents  []string  `json:"contents"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
@@ -83,6 +87,8 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 
 	item := &vtm.Item{
 		Kind:        "ItemV1",
+		Lot:         form.Lot,
+		Index:       form.Index,
 		Contents:    form.Contents,
 		ContentsOrg: form.Contents,
 	}
@@ -107,6 +113,8 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 
 	return &ItemAPIPostResponse{
 		Key:       bm.Key(item).Encode(),
+		Lot:       item.Lot,
+		Index:     item.Index,
 		Contents:  item.Contents,
 		CreatedAt: item.CreatedAt,
 		UpdatedAt: item.UpdatedAt,
@@ -125,6 +133,8 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 
 	item := &vtm.Item{
 		Kind:        "ItemV1OnlyOneClient",
+		Lot:         form.Lot,
+		Index:       form.Index,
 		Contents:    form.Contents,
 		ContentsOrg: form.Contents,
 	}
@@ -148,6 +158,8 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 
 	return &ItemAPIPostResponse{
 		Key:       bm.Key(item).Encode(),
+		Lot:       item.Lot,
+		Index:     item.Index,
 		Contents:  item.Contents,
 		CreatedAt: item.CreatedAt,
 		UpdatedAt: item.UpdatedAt,
