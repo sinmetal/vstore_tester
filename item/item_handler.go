@@ -81,7 +81,7 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 	log := slog.Start(time.Now())
 	defer log.Flush()
 
-	log.Info("Item Post !!!")
+	log.Info("Item.Post")
 	{
 		body, err := json.Marshal(form)
 		if err != nil {
@@ -134,11 +134,71 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 	}, nil
 }
 
+func (api *ItemAPI) PostForCreateClientEveryTimeRetry(ctx context.Context, form *ItemAPIPostRequest) (*ItemAPIPostResponse, error) {
+	log := slog.Start(time.Now())
+	defer log.Flush()
+
+	log.Info("Item.PostForCreateClientEveryTimeRetry")
+	{
+		body, err := json.Marshal(form)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		log.Info(string(body))
+	}
+
+	item := &vtm.Item{
+		Kind:        "ItemV1PostForCreateClientEveryTimeRetry",
+		Lot:         form.Lot,
+		Index:       form.Index,
+		Contents:    form.Contents,
+		ContentsOrg: form.Contents,
+	}
+
+	projectID, err := config.GetProjectID(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "config.GetProjectID")
+	}
+
+	store := vtm.ItemStore{}
+
+	var bm *boom.Boom
+	err = Retry(func(attempt int) (retry bool, err error) {
+		client, err := FromContext(ctx, projectID)
+		if err != nil {
+			log.Errorf("FromContext", err.Error())
+			return true, errors.Wrap(err, "FromContext")
+		}
+		defer client.Close()
+
+		bm = boom.FromClient(ctx, client)
+		log.Infof("Retry Count = %d", attempt)
+		err = store.Put(bm, item)
+		if err != nil {
+			log.Errorf("store.Put", err.Error())
+			return true, errors.Wrap(err, "store.Put")
+		}
+		return false, nil
+	}, 8)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ItemAPIPostResponse{
+		Key:       bm.Key(item).Encode(),
+		Lot:       item.Lot,
+		Index:     item.Index,
+		Contents:  item.Contents,
+		CreatedAt: item.CreatedAt,
+		UpdatedAt: item.UpdatedAt,
+	}, nil
+}
+
 func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostRequest) (*ItemAPIPostResponse, error) {
 	log := slog.Start(time.Now())
 	defer log.Flush()
 
-	log.Info("Item PostForOnlyOneClient !!!")
+	log.Info("Item.PostForOnlyOneClient")
 	{
 		body, err := json.Marshal(form)
 		if err != nil {
