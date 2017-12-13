@@ -106,6 +106,7 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 	}
 	client, err := FromContext(ctx, projectID)
 	if err != nil {
+		log.Errorf("failed FromContext. err = %s", err.Error())
 		return nil, errors.Wrap(err, "FromContext")
 	}
 	defer client.Close()
@@ -115,12 +116,13 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 		log.Infof("Retry Count = %d", attempt)
 		err = store.Put(bm, item)
 		if err != nil {
-			log.Errorf("store.Put", err.Error())
+			log.Infof("store.Put. err = %s", err.Error())
 			return true, errors.Wrap(err, "store.Put")
 		}
 		return false, nil
 	}, 8)
 	if err != nil {
+		log.Errorf("failed store.Put. err = %s", err.Error())
 		return nil, err
 	}
 
@@ -166,7 +168,7 @@ func (api *ItemAPI) PostForCreateClientEveryTimeRetry(ctx context.Context, form 
 	err = Retry(func(attempt int) (retry bool, err error) {
 		client, err := FromContext(ctx, projectID)
 		if err != nil {
-			log.Errorf("FromContext", err.Error())
+			log.Infof("FromContext. err = %s", err.Error())
 			return true, errors.Wrap(err, "FromContext")
 		}
 		defer client.Close()
@@ -175,12 +177,13 @@ func (api *ItemAPI) PostForCreateClientEveryTimeRetry(ctx context.Context, form 
 		log.Infof("Retry Count = %d", attempt)
 		err = store.Put(bm, item)
 		if err != nil {
-			log.Errorf("store.Put", err.Error())
+			log.Infof("store.Put. err = %s", err.Error())
 			return true, errors.Wrap(err, "store.Put")
 		}
 		return false, nil
 	}, 8)
 	if err != nil {
+		log.Errorf("failed store.Put. err = %s", err.Error())
 		return nil, err
 	}
 
@@ -223,6 +226,7 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 	}
 	client, err := client.GetDatastoreClient(ctx, projectID)
 	if err != nil {
+		log.Errorf("failed client.GetDatastoreClient. err = %s", err.Error())
 		return nil, errors.Wrap(err, "client.GetDatastoreClient")
 	}
 
@@ -231,12 +235,13 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 		log.Infof("Retry Count = %d", attempt)
 		err = store.Put(bm, item)
 		if err != nil {
-			log.Errorf("store.Put", err.Error())
+			log.Infof("store.Put. err = %s", err.Error())
 			return true, errors.Wrap(err, "store.Put")
 		}
 		return false, nil
 	}, 8)
 	if err != nil {
+		log.Errorf("failed store.Put. err = %s", err.Error())
 		return nil, err
 	}
 
