@@ -113,7 +113,7 @@ func (api *ItemAPI) Post(ctx context.Context, form *ItemAPIPostRequest) (*ItemAP
 
 	bm := boom.FromClient(ctx, client)
 	err = Retry(func(attempt int) (retry bool, err error) {
-		log.Infof("Retry Count = %d", attempt)
+		log.Info(formatDatastoreRetryCountLog(attempt))
 		err = store.Put(bm, item)
 		if err != nil {
 			log.Infof("store.Put. err = %s", err.Error())
@@ -166,6 +166,7 @@ func (api *ItemAPI) PostForCreateClientEveryTimeRetry(ctx context.Context, form 
 
 	var bm *boom.Boom
 	err = Retry(func(attempt int) (retry bool, err error) {
+		log.Info(formatDatastoreRetryCountLog(attempt))
 		client, err := FromContext(ctx, projectID)
 		if err != nil {
 			log.Infof("FromContext. err = %s", err.Error())
@@ -174,7 +175,6 @@ func (api *ItemAPI) PostForCreateClientEveryTimeRetry(ctx context.Context, form 
 		defer client.Close()
 
 		bm = boom.FromClient(ctx, client)
-		log.Infof("Retry Count = %d", attempt)
 		err = store.Put(bm, item)
 		if err != nil {
 			log.Infof("store.Put. err = %s", err.Error())
@@ -232,7 +232,7 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 
 	bm := boom.FromClient(ctx, client)
 	err = Retry(func(attempt int) (retry bool, err error) {
-		log.Infof("Retry Count = %d", attempt)
+		log.Info(formatDatastoreRetryCountLog(attempt))
 		err = store.Put(bm, item)
 		if err != nil {
 			log.Infof("store.Put. err = %s", err.Error())
@@ -309,7 +309,7 @@ func (api *ItemAPI) UpdateForOnlyOneClient(ctx context.Context, form *ItemAPIPut
 
 	// 適当に暗号化して更新する
 	err = Retry(func(attempt int) (retry bool, err error) {
-		log.Infof("KMS Retry Count = %d", attempt)
+		log.Info(formatKMSRetryCountLog(attempt))
 		cipterText, cryptKey, err := encrypt(ctx, si.Contents[0])
 		if err != nil {
 			log.Errorf("failed kms.encrypt. err = %s", err.Error())
@@ -325,7 +325,7 @@ func (api *ItemAPI) UpdateForOnlyOneClient(ctx context.Context, form *ItemAPIPut
 	}
 
 	err = Retry(func(attempt int) (retry bool, err error) {
-		log.Infof("Datstore Retry Count = %d", attempt)
+		log.Info(formatDatastoreRetryCountLog(attempt))
 		err = store.Update(bm, &si)
 		if err != nil {
 			log.Infof("store.Update. err = %s", err.Error())
@@ -367,4 +367,12 @@ func Retry(fn Func, maxRetries int) error {
 	}
 
 	return err
+}
+
+func formatDatastoreRetryCountLog(attempt int) string {
+	return fmt.Sprintf("Datastore Retry Count = %d", attempt)
+}
+
+func formatKMSRetryCountLog(attempt int) string {
+	return fmt.Sprintf("KMS Retry Count = %d", attempt)
 }
