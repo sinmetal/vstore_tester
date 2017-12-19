@@ -255,6 +255,99 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 	}, nil
 }
 
+type ItemAPIPutRequest struct {
+	Key string `json:"key"`
+}
+
+type ItemAPIPutResponse struct {
+	Key       string    `json:"key"`
+	Lot       string    `json:"lot"`
+	Index     int       `json:"index"`
+	Contents  []string  `json:"contents"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (api *ItemAPI) UpdateForOnlyOneClient(ctx context.Context, form *ItemAPIPutRequest) (*ItemAPIPutResponse, error) {
+	log := slog.Start(time.Now())
+	defer log.Flush()
+
+	log.Info("Item.UpdateForOnlyOneClient")
+	{
+		body, err := json.Marshal(form)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		log.Info(string(body))
+	}
+
+	projectID, err := config.GetProjectID(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "config.GetProjectID")
+	}
+	client, err := client.GetDatastoreClient(ctx, projectID)
+	if err != nil {
+		log.Errorf("failed client.GetDatastoreClient. err = %s", err.Error())
+		return nil, errors.Wrap(err, "client.GetDatastoreClient")
+	}
+	store := vtm.ItemStore{}
+
+	bm := boom.FromClient(ctx, client)
+	key, err := client.DecodeKey(form.Key)
+	if err != nil {
+		log.Errorf("Invalid Key. err = %s", err.Error())
+		return nil, errors.Wrap(err, "client.DecodeKey")
+	}
+
+	var si vtm.Item
+	si.Kind = "ItemV1OnlyOneClient"
+	si.ID = key.ID()
+	if err := store.Get(bm, &si); err != nil {
+		log.Errorf("failed datastore.Get. err = %s", err.Error())
+		return nil, errors.Wrap(err, "datastore.Get")
+	}
+
+	// 適当に暗号化して更新する
+	err = Retry(func(attempt int) (retry bool, err error) {
+		log.Infof("KMS Retry Count = %d", attempt)
+		cipterText, cryptKey, err := encrypt(ctx, si.Contents[0])
+		if err != nil {
+			log.Errorf("failed kms.encrypt. err = %s", err.Error())
+			return true, errors.Wrap(err, "kms.encrypt")
+		}
+		si.EncryptedContents = cipterText
+		si.CryptKey = cryptKey
+		return false, nil
+	}, 8)
+	if err != nil {
+		log.Errorf("failed KMS.encrypt. err = %s", err.Error())
+		return nil, err
+	}
+
+	err = Retry(func(attempt int) (retry bool, err error) {
+		log.Infof("Datstore Retry Count = %d", attempt)
+		err = store.Update(bm, &si)
+		if err != nil {
+			log.Infof("store.Update. err = %s", err.Error())
+			return true, errors.Wrap(err, "store.Update")
+		}
+		return false, nil
+	}, 8)
+	if err != nil {
+		log.Errorf("failed store.Update. err = %s", err.Error())
+		return nil, err
+	}
+
+	return &ItemAPIPutResponse{
+		Key:       bm.Key(si).Encode(),
+		Lot:       si.Lot,
+		Index:     si.Index,
+		Contents:  si.Contents,
+		CreatedAt: si.CreatedAt,
+		UpdatedAt: si.UpdatedAt,
+	}, nil
+}
+
 type Func func(attempt int) (retry bool, err error)
 
 func Retry(fn Func, maxRetries int) error {

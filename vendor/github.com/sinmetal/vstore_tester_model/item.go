@@ -14,15 +14,17 @@ type Contents []string
 
 type Item struct {
 	// FIXME panic !!! Parent datastore.Key `boom:"parent"`
-	ID            int64     `boom:"id" datastore:"-"`
-	Kind          string    `boom:"kind" datastore:"-"`
-	Lot           string    `json:"lot"`
-	Index         int       `json:"index"`
-	Contents      Contents  `json:"contents"`
-	ContentsOrg   []string  `json:"contentsOrg"`
-	CreatedAt     time.Time `json:"createdAt"`
-	UpdatedAt     time.Time `json:"updatedAt"`
-	SchemaVersion int       `json:"-"`
+	ID                int64     `boom:"id" datastore:"-"`
+	Kind              string    `boom:"kind" datastore:"-"`
+	Lot               string    `json:"lot"`
+	Index             int       `json:"index"`
+	Contents          Contents  `json:"contents"`
+	ContentsOrg       []string  `json:"contentsOrg"`
+	CryptKey          string    `json:"cryptKey"`          // SampleのためにJson出力する
+	EncryptedContents string    `json:"encryptedContents"` // SampleのためにJson出力する
+	CreatedAt         time.Time `json:"createdAt"`
+	UpdatedAt         time.Time `json:"updatedAt"`
+	SchemaVersion     int       `json:"-"`
 }
 
 type ItemStore struct{}
@@ -37,7 +39,7 @@ func (item *Item) Load(ctx context.Context, ps []datastore.Property) error {
 }
 
 func (item *Item) Save(ctx context.Context) ([]datastore.Property, error) {
-	item.SchemaVersion = 3
+	item.SchemaVersion = 4
 	if item.CreatedAt.IsZero() {
 		item.CreatedAt = time.Now()
 	}
@@ -59,5 +61,32 @@ func (store *ItemStore) Put(bm *boom.Boom, item *Item) error {
 	if err != nil {
 		return errors.Wrap(err, "datastore.Put")
 	}
+	return nil
+}
+
+func (store *ItemStore) Get(bm *boom.Boom, item *Item) error {
+	err := bm.Get(item)
+	if err != nil {
+		return errors.Wrap(err, "datastore.Get")
+	}
+	return nil
+}
+
+func (store *ItemStore) Update(bm *boom.Boom, item *Item) error {
+	bm.RunInTransaction(func(tx *boom.Transaction) error {
+		st := Item{
+			ID: item.ID,
+		}
+		if err := tx.Get(&st); err != nil {
+			return errors.Wrap(err, "tx.Get")
+		}
+		st.Contents = item.Contents
+		st.ContentsOrg = item.ContentsOrg
+		st.CryptKey = item.CryptKey
+		st.EncryptedContents = item.EncryptedContents
+
+		return nil
+	})
+
 	return nil
 }

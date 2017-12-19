@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/sinmetal/vstore_tester/client"
 	"github.com/sinmetal/vstore_tester/config"
@@ -16,12 +17,19 @@ import (
 func main() {
 	defer client.CloseDatastoreClient()
 
+	ctx := context.Background()
+	if err := item.SetUpKMS(ctx); err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
 	ucon.Middleware(UseContext)
 	ucon.Orthodox()
 
 	itemAPI := item.ItemAPI{}
 	ucon.HandleFunc(http.MethodPost, "/item", itemAPI.Post)
 	ucon.HandleFunc(http.MethodPost, "/item/onlyoneclient", itemAPI.PostForOnlyOneClient)
+	ucon.HandleFunc(http.MethodPut, "/item/onlyoneclient", itemAPI.UpdateForOnlyOneClient)
 	ucon.HandleFunc(http.MethodPost, "/item/createclienteverytimeretry", itemAPI.PostForCreateClientEveryTimeRetry)
 	ucon.HandleFunc(http.MethodPost, "/item/allocatedid", itemAPI.AllocatedID)
 
