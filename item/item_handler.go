@@ -245,6 +245,8 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 		return nil, err
 	}
 
+	log.Infof("stored item id = %d", bm.Key(item).ID())
+
 	return &ItemAPIPostResponse{
 		Key:       bm.Key(item).Encode(),
 		Lot:       item.Lot,
@@ -298,6 +300,7 @@ func (api *ItemAPI) UpdateForOnlyOneClient(ctx context.Context, form *ItemAPIPut
 		log.Errorf("Invalid Key. err = %s", err.Error())
 		return nil, errors.Wrap(err, "client.DecodeKey")
 	}
+	log.Infof("parameter key id = %d", key.ID())
 
 	var si vtm.Item
 	si.Kind = "ItemV1OnlyOneClient"
@@ -327,6 +330,9 @@ func (api *ItemAPI) UpdateForOnlyOneClient(ctx context.Context, form *ItemAPIPut
 	err = Retry(func(attempt int) (retry bool, err error) {
 		log.Info(formatDatastoreRetryCountLog(attempt))
 		err = store.Update(bm, &si)
+		if err == datastore.ErrNoSuchEntity {
+			return false, err
+		}
 		if err != nil {
 			log.Infof("store.Update. err = %s", err.Error())
 			return true, errors.Wrap(err, "store.Update")
