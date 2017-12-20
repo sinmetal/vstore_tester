@@ -57,10 +57,11 @@ func (store *ItemStore) AllocatedID(bm *boom.Boom, item *Item) (datastore.Key, e
 }
 
 func (store *ItemStore) Put(bm *boom.Boom, item *Item) error {
-	_, err := bm.Put(item)
+	key, err := bm.Put(item)
 	if err != nil {
 		return errors.Wrap(err, "datastore.Put")
 	}
+	item.ID = key.ID()
 	return nil
 }
 
