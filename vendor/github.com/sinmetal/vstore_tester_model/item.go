@@ -57,10 +57,11 @@ func (store *ItemStore) AllocatedID(bm *boom.Boom, item *Item) (datastore.Key, e
 }
 
 func (store *ItemStore) Put(bm *boom.Boom, item *Item) error {
-	_, err := bm.Put(item)
+	key, err := bm.Put(item)
 	if err != nil {
 		return errors.Wrap(err, "datastore.Put")
 	}
+	item.ID = key.ID()
 	return nil
 }
 
@@ -73,9 +74,10 @@ func (store *ItemStore) Get(bm *boom.Boom, item *Item) error {
 }
 
 func (store *ItemStore) Update(bm *boom.Boom, item *Item) error {
-	bm.RunInTransaction(func(tx *boom.Transaction) error {
+	_, err := bm.RunInTransaction(func(tx *boom.Transaction) error {
 		st := Item{
-			ID: item.ID,
+			Kind: item.Kind,
+			ID:   item.ID,
 		}
 		if err := tx.Get(&st); err != nil {
 			return errors.Wrap(err, "tx.Get")
@@ -84,9 +86,16 @@ func (store *ItemStore) Update(bm *boom.Boom, item *Item) error {
 		st.ContentsOrg = item.ContentsOrg
 		st.CryptKey = item.CryptKey
 		st.EncryptedContents = item.EncryptedContents
+		_, err := tx.Put(&st)
+		if err != nil {
+			return errors.Wrap(err, "tx.Put")
+		}
 
 		return nil
 	})
+	if err != nil {
+		return errors.Wrap(err, "datastore.RunInTransaction")
+	}
 
 	return nil
 }

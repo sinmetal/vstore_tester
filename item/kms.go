@@ -59,6 +59,7 @@ func decrypt(ctx context.Context, ciphertext string) (plaintext string, err erro
 
 	cryptoKeyName := fmt.Sprintf("projects/%s/locations/global/keyRings/sample-ring/cryptoKeys/sample-key", projectID)
 
+	// TODO response status codeを見て、エラーの種類を作成し、リトライ可能なのか判断できるようにしたほうがよさそう
 	response, err := kmsService.Projects.Locations.KeyRings.CryptoKeys.Decrypt(cryptoKeyName, &cloudkms.DecryptRequest{
 		Ciphertext: ciphertext,
 	}).Do()

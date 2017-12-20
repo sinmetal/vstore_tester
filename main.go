@@ -30,6 +30,7 @@ func main() {
 	ucon.HandleFunc(http.MethodPost, "/item", itemAPI.Post)
 	ucon.HandleFunc(http.MethodPost, "/item/onlyoneclient", itemAPI.PostForOnlyOneClient)
 	ucon.HandleFunc(http.MethodPut, "/item/onlyoneclient", itemAPI.UpdateForOnlyOneClient)
+	ucon.HandleFunc(http.MethodGet, "/item/onlyoneclient", itemAPI.GetForOnlyOneClient)
 	ucon.HandleFunc(http.MethodPost, "/item/createclienteverytimeretry", itemAPI.PostForCreateClientEveryTimeRetry)
 	ucon.HandleFunc(http.MethodPost, "/item/allocatedid", itemAPI.AllocatedID)
 
