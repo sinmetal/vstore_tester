@@ -53,7 +53,7 @@
   branch = "master"
   name = "github.com/sinmetal/vstore_tester_model"
   packages = ["."]
-  revision = "fe424b5de68cdfd3fcff38388c934a628180b7e5"
+  revision = "d2aa220b0b639aa29fd94ee933b010350ad94179"
 
 [[projects]]
   branch = "master"

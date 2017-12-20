@@ -84,6 +84,10 @@ func (store *ItemStore) Update(bm *boom.Boom, item *Item) error {
 		st.ContentsOrg = item.ContentsOrg
 		st.CryptKey = item.CryptKey
 		st.EncryptedContents = item.EncryptedContents
+		_, err := tx.Put(&st)
+		if err != nil {
+			return errors.Wrap(err, "tx.Put")
+		}
 
 		return nil
 	})
