@@ -318,7 +318,7 @@ func (api *ItemAPI) UpdateForOnlyOneClient(ctx context.Context, form *ItemAPIPut
 		si.EncryptedContents = cipterText
 		si.CryptKey = cryptKey
 		return false, nil
-	}, 8)
+	}, 4)
 	if err != nil {
 		log.Errorf("failed KMS.encrypt. err = %s", err.Error())
 		return nil, err
@@ -418,7 +418,7 @@ func (api *ItemAPI) GetForOnlyOneClient(ctx context.Context, form *ItemAPIGetReq
 		}
 		log.Infof("plainText = %s", plainText)
 		return false, nil
-	}, 8)
+	}, 4)
 	if err != nil {
 		log.Errorf("failed KMS.encrypt. err = %s", err.Error())
 		return nil, err
