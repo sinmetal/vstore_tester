@@ -73,7 +73,7 @@ func (store *ItemStore) Get(bm *boom.Boom, item *Item) error {
 }
 
 func (store *ItemStore) Update(bm *boom.Boom, item *Item) error {
-	bm.RunInTransaction(func(tx *boom.Transaction) error {
+	_, err := bm.RunInTransaction(func(tx *boom.Transaction) error {
 		st := Item{
 			ID: item.ID,
 		}
@@ -91,6 +91,9 @@ func (store *ItemStore) Update(bm *boom.Boom, item *Item) error {
 
 		return nil
 	})
+	if err != nil {
+		return errors.Wrap(err, "datastore.RunInTransaction")
+	}
 
 	return nil
 }
