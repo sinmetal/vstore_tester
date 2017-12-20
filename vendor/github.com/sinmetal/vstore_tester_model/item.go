@@ -76,7 +76,8 @@ func (store *ItemStore) Get(bm *boom.Boom, item *Item) error {
 func (store *ItemStore) Update(bm *boom.Boom, item *Item) error {
 	_, err := bm.RunInTransaction(func(tx *boom.Transaction) error {
 		st := Item{
-			ID: item.ID,
+			Kind: item.Kind,
+			ID:   item.ID,
 		}
 		if err := tx.Get(&st); err != nil {
 			return errors.Wrap(err, "tx.Get")
