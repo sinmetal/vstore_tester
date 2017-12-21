@@ -11,6 +11,9 @@ import (
 var mu sync.RWMutex
 var ds datastore.Client
 
+var muOther sync.RWMutex
+var dsOther datastore.Client
+
 func GetDatastoreClient(ctx context.Context, projectID string) (datastore.Client, error) {
 	mu.RLock()
 	if ds == nil {
@@ -20,6 +23,17 @@ func GetDatastoreClient(ctx context.Context, projectID string) (datastore.Client
 		mu.RUnlock()
 	}
 	return ds, nil
+}
+
+func GetDatastoreClientForOtherProject(ctx context.Context, projectID string) (datastore.Client, error) {
+	muOther.RLock()
+	if dsOther == nil {
+		muOther.RUnlock()
+		createWithSetDatastoreClientForOtherProject(ctx, projectID)
+	} else {
+		muOther.RUnlock()
+	}
+	return dsOther, nil
 }
 
 func CloseDatastoreClient() error {
@@ -37,6 +51,17 @@ func createWithSetDatastoreClient(ctx context.Context, projectID string) error {
 		return err
 	}
 	ds = client
+	return nil
+}
+
+func createWithSetDatastoreClientForOtherProject(ctx context.Context, projectID string) error {
+	muOther.Lock()
+	defer muOther.Unlock()
+	client, err := fromContext(ctx, projectID)
+	if err != nil {
+		return err
+	}
+	dsOther = client
 	return nil
 }
 
