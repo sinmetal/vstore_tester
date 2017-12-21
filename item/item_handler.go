@@ -257,6 +257,63 @@ func (api *ItemAPI) PostForOnlyOneClient(ctx context.Context, form *ItemAPIPostR
 	}, nil
 }
 
+func (api *ItemAPI) PostForOnlyOneClientOtherProject(ctx context.Context, form *ItemAPIPostRequest) (*ItemAPIPostResponse, error) {
+	log := slog.Start(time.Now())
+	defer log.Flush()
+
+	log.Info("Item.PostForOnlyOneClientOtherProject")
+	{
+		body, err := json.Marshal(form)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		log.Info(string(body))
+	}
+
+	item := &vtm.Item{
+		Kind:        "ItemV1OnlyOneClient",
+		Lot:         form.Lot,
+		Index:       form.Index,
+		Contents:    form.Contents,
+		ContentsOrg: form.Contents,
+	}
+
+	store := vtm.ItemStore{}
+
+	projectID := "identification-service-qa"
+	client, err := client.GetDatastoreClientForOtherProject(ctx, projectID)
+	if err != nil {
+		log.Errorf("failed client.GetDatastoreClientForOtherProject. err = %s", err.Error())
+		return nil, errors.Wrap(err, "client.GetDatastoreClient")
+	}
+
+	bm := boom.FromClient(ctx, client)
+	err = Retry(func(attempt int) (retry bool, err error) {
+		log.Info(formatDatastoreRetryCountLog(attempt))
+		err = store.Put(bm, item)
+		if err != nil {
+			log.Infof("store.Put. err = %s", err.Error())
+			return true, errors.Wrap(err, "store.Put")
+		}
+		return false, nil
+	}, 8)
+	if err != nil {
+		log.Errorf("failed store.Put. err = %s", err.Error())
+		return nil, err
+	}
+
+	log.Infof("stored item id = %d", bm.Key(item).ID())
+
+	return &ItemAPIPostResponse{
+		Key:       bm.Key(item).Encode(),
+		Lot:       item.Lot,
+		Index:     item.Index,
+		Contents:  item.Contents,
+		CreatedAt: item.CreatedAt,
+		UpdatedAt: item.UpdatedAt,
+	}, nil
+}
+
 type ItemAPIPutRequest struct {
 	Key string `json:"key"`
 }
