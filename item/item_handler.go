@@ -459,6 +459,7 @@ func (api *ItemAPI) GetForOnlyOneClient(ctx context.Context, form *ItemAPIGetReq
 	si.Kind = "ItemV1OnlyOneClient"
 	si.ID = key.ID()
 	err = Retry(func(attempt int) (retry bool, err error) {
+		log.Info(formatDatastoreRetryCountLog(attempt))
 		if err := store.Get(bm, &si); err != nil {
 			log.Errorf("failed datastore.Get. err = %s", err.Error())
 			return true, errors.Wrap(err, "datastore.Get")
